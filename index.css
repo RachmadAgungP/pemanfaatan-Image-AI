@@ -1,0 +1,156 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f3f4f6;
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  padding: 10px;
+}
+
+.image-container img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  object-fit: cover; /* Ensures image covers the frame */
+}
+
+.zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.modal-content-wrapper {
+  max-width: 90%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+#modalImage {
+  max-width: 100%;
+  max-height: none;
+  cursor: default;
+}
+
+.fixed-buttons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  width: 80%;
+}
+
+.image-container:hover .fixed-buttons {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  font-weight: 600;
+  color: #1f2937;
+  transition: background-color 0.3s;
+  backdrop-filter: blur(5px);
+}
+
+.action-button:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.action-button svg {
+  margin-right: 8px;
+}
+
+/* --- MOBILE LAYOUT FIXES --- */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85%; /* Lebih kecil dari 100% agar tidak memenuhi seluruh layar */
+  max-width: 350px;
+  height: 100%;
+  z-index: 50;
+  transform: translateX(-100%); /* Sembunyikan default di mobile */
+  transition: transform 0.3s ease-out;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  /* Pastikan sidebar selalu memiliki latar belakang di mobile */
+  background-color: #fff;
+}
+
+#sidebar.open {
+  transform: translateX(0); /* Tampilkan saat terbuka */
+}
+
+@media (min-width: 768px) {
+  #sidebar {
+    position: static;
+    width: 100%;
+    max-width: none;
+    transform: translateX(0);
+    box-shadow: none;
+  }
+}
+
+.floating-button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 40;
+}
+
+@media (min-width: 768px) {
+  .floating-button-container {
+    display: none;
+  }
+}

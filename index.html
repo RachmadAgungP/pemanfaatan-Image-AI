@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sim Salabim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              primary: '#4F46E5',
+              secondary: '#6366F1',
+              dark: '#1F2937',
+              light: '#F3F4F6',
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="index.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai@^1.4.0"
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-light text-dark">
+    <div class="flex flex-col md:flex-row h-screen p-4 gap-4">
+      <!-- Sidebar Input -->
+      <div
+        id="sidebar"
+        class="md:w-1/3 w-full bg-white rounded-2xl shadow-lg p-6 flex flex-col space-y-4 overflow-y-auto scroll-container"
+      >
+        <h1 class="text-3xl font-bold text-center text-primary">Rawat Image</h1>
+        <p class="text-center text-sm text-gray-500 mt-[-10px]">
+          by : @Rawatku
+        </p>
+
+        <!-- Close Button for Mobile -->
+        <button
+          id="closeSidebarBtn"
+          class="md:hidden self-end text-gray-500 hover:text-gray-700"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        <!-- Tabs -->
+        <div class="flex justify-center mb-4 space-x-2">
+          <button
+            data-tab="spotlight"
+            class="tab-btn py-2 px-4 rounded-full text-sm font-semibold bg-primary text-white transition-colors"
+          >
+            Spotlight
+          </button>
+          <button
+            data-tab="lifestyle"
+            class="tab-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+          >
+            Lifestyle
+          </button>
+          <button
+            data-tab="shot-lab"
+            class="tab-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+          >
+            Shot Lab
+          </button>
+        </div>
+
+        <!-- Tab Content: Spotlight -->
+        <div id="spotlight-options" class="tab-content">
+          <!-- Product Reference -->
+          <div>
+            <label
+              for="productImage_spotlight"
+              class="block text-sm font-medium text-gray-700"
+              >Upload Foto Produk</label
+            >
+            <input
+              type="file"
+              id="productImage_spotlight"
+              accept="image/*"
+              class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+            />
+          </div>
+        </div>
+
+        <!-- Tab Content: Lifestyle -->
+        <div id="lifestyle-options" class="tab-content hidden">
+          <!-- Product Reference -->
+          <div>
+            <label
+              for="productImage_lifestyle"
+              class="block text-sm font-medium text-gray-700"
+              >Upload Foto Produk</label
+            >
+            <input
+              type="file"
+              id="productImage_lifestyle"
+              accept="image/*"
+              class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+            />
+          </div>
+          <!-- Model/Talent Reference -->
+          <div>
+            <label
+              for="modelImage_lifestyle"
+              class="block text-sm font-medium text-gray-700"
+              >Upload Foto Model/Talent</label
+            >
+            <input
+              type="file"
+              id="modelImage_lifestyle"
+              accept="image/*"
+              class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+            />
+          </div>
+          <!-- Other Product Reference -->
+          <div>
+            <label
+              for="otherProductImage_lifestyle"
+              class="block text-sm font-medium text-gray-700"
+              >Tambahkan Produk Lain (Opsional)</label
+            >
+            <input
+              type="file"
+              id="otherProductImage_lifestyle"
+              accept="image/*"
+              class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+            />
+          </div>
+        </div>
+
+        <!-- Tab Content: Shot Lab (Pose & Angle) -->
+        <div id="shot-lab-options" class="tab-content hidden">
+          <!-- Image Reference -->
+          <div>
+            <label
+              for="image_shot_lab"
+              class="block text-sm font-medium text-gray-700"
+              >Upload Gambar Referensi</label
+            >
+            <input
+              type="file"
+              id="image_shot_lab"
+              accept="image/*"
+              class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+            />
+            <p class="text-xs text-gray-400 mt-1">
+              Gunakan foto produk, model, atau hasil *generate* terpilih
+            </p>
+          </div>
+          <!-- Pilihan Pose & Angle -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Pilihan Pose & Angle</label
+            >
+            <div class="mt-2 flex flex-wrap gap-2">
+              <!-- Pose Options -->
+              <button
+                data-prompt="a powerful, strong pose"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Pose Kuat
+              </button>
+              <button
+                data-prompt="a dynamic, action pose"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Pose Dinamis
+              </button>
+              <button
+                data-prompt="a candid, thoughtful expression"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Ekspresi Mellow
+              </button>
+              <button
+                data-prompt="a relaxed, casual pose"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Pose Santai
+              </button>
+              <button
+                data-prompt="a graceful, elegant pose"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Pose Elegan
+              </button>
+
+              <!-- Angle Options -->
+              <button
+                data-prompt="A cinematic low-angle shot, from a wide perspective, to create a powerful and heroic feel"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Low Angle
+              </button>
+              <button
+                data-prompt="An artistic high-angle shot, looking down at the subject, to create a sense of scale and artistic composition"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                High Angle
+              </button>
+              <button
+                data-prompt="An eye-level shot, taken from a side or three-quarter angle to add dynamism"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Side Angle
+              </button>
+              <button
+                data-prompt="A close-up shot focusing on the subject's face and the product. Emphasize facial details and product features"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Close Up
+              </button>
+              <button
+                data-prompt="An extreme close-up shot, highlighting minute details like condensation, water droplets, or intricate patterns"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Extreme Close Up
+              </button>
+              <button
+                data-prompt="A cinematic photo where the subject is in sharp focus, and the background is intentionally blurred (Racking Shot)"
+                class="pose-angle-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              >
+                Racking Shot
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Background Image Upload -->
+        <div>
+          <label
+            for="backgroundImage"
+            class="block text-sm font-medium text-gray-700"
+            >Tambahkan Gambar Latar Belakang (Opsional)</label
+          >
+          <input
+            type="file"
+            id="backgroundImage"
+            accept="image/*"
+            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+          />
+        </div>
+
+        <!-- Combined Style and Theme Options -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Kategori Gaya & Tema</label
+          >
+          <div class="mt-2 flex flex-wrap gap-2">
+            <button
+              data-theme="Profesional Studio"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Profesional Studio
+            </button>
+            <button
+              data-theme="Urban Street Style"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Urban Street Style
+            </button>
+            <button
+              data-theme="Indoor Lifestyle"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Indoor Lifestyle
+            </button>
+            <button
+              data-theme="Outdoor Lifestyle"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Outdoor Lifestyle
+            </button>
+            <button
+              data-theme="Elegan & Luxury"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Elegan & Luxury
+            </button>
+            <button
+              data-theme="Fantasi & CGI"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Fantasi & CGI
+            </button>
+            <button
+              data-theme="Aura"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Aura
+            </button>
+            <button
+              data-theme="Dramatic & Dark"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Dramatic & Dark
+            </button>
+            <button
+              data-theme="Rustic & Homemade"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Rustic & Homemade
+            </button>
+            <button
+              data-theme="Fresh & Vibrant"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Fresh & Vibrant
+            </button>
+            <button
+              data-theme="Urban Cafe"
+              class="theme-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Urban Cafe
+            </button>
+          </div>
+        </div>
+
+        <!-- Background Color (visible if "Profesional Studio" selected) -->
+        <div id="studio-color-options" class="hidden">
+          <label class="block text-sm font-medium text-gray-700"
+            >Pilihan Warna Latar Belakang</label
+          >
+          <div class="mt-2 flex flex-wrap gap-2">
+            <button
+              data-color="white"
+              class="color-btn bg-white border border-gray-300 w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+            <button
+              data-color="gray"
+              class="color-btn bg-gray-500 w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+            <button
+              data-color="black"
+              class="color-btn bg-black w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+            <button
+              data-color="red"
+              class="color-btn bg-red-500 w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+            <button
+              data-color="blue"
+              class="color-btn bg-blue-500 w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+            <button
+              data-color="green"
+              class="color-btn bg-green-500 w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+            <button
+              data-color="yellow"
+              class="color-btn bg-yellow-500 w-8 h-8 rounded-full shadow-md transition-colors"
+            ></button>
+          </div>
+        </div>
+
+        <!-- Lighting Options -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Pilihan Pencahayaan</label
+          >
+          <div class="mt-2 flex flex-wrap gap-2">
+            <button
+              data-lighting="studio lighting"
+              class="lighting-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Studio Lighting
+            </button>
+            <button
+              data-lighting="natural light"
+              class="lighting-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Natural Light
+            </button>
+            <button
+              data-lighting="dramatic"
+              class="lighting-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Dramatical
+            </button>
+            <button
+              data-lighting="colour effect"
+              class="lighting-btn py-2 px-4 rounded-full text-sm font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Colour Effect
+            </button>
+          </div>
+        </div>
+
+        <!-- Camera & Lens Options -->
+        <div>
+          <label for="cameraLens" class="block text-sm font-medium text-gray-700"
+            >Kamera & Lensa (Opsional)</label
+          >
+          <select
+            id="cameraLens"
+            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 p-2"
+          >
+            <option value="">Pilih Kamera & Lensa</option>
+            <option value="Hasselblad X2D + 80mm f/1.9">
+              Hasselblad X2D + 80mm f/1.9
+            </option>
+            <option value="Sony FX6 + 35mm cine">Sony FX6 + 35mm cine</option>
+            <option value="Canon EOS R5 + 24mm wide">
+              Canon EOS R5 + 24mm wide
+            </option>
+          </select>
+        </div>
+
+        <!-- Concept Description -->
+        <div>
+          <label
+            for="description"
+            class="block text-sm font-medium text-gray-700"
+            >Deskripsi Konsep (Opsional)</label
+          >
+          <textarea
+            id="description"
+            rows="4"
+            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 p-2"
+          ></textarea>
+        </div>
+
+        <button
+          id="generateBtn"
+          class="w-full py-3 px-4 rounded-full text-lg font-bold bg-primary text-white hover:bg-secondary transition-colors shadow-lg"
+        >
+          Generate Foto
+        </button>
+        <div class="flex space-x-2 mt-4">
+          <button
+            id="undoBtn"
+            class="w-1/2 py-3 px-4 rounded-full text-lg font-bold bg-gray-500 text-white hover:bg-gray-600 transition-colors shadow-lg hidden"
+          >
+            Undo
+          </button>
+          <button
+            id="redoBtn"
+            class="w-1/2 py-3 px-4 rounded-full text-lg font-bold bg-gray-500 text-white hover:bg-gray-600 transition-colors shadow-lg hidden"
+          >
+            Redo
+          </button>
+        </div>
+        <button
+          id="regenerateBtn"
+          class="w-full py-3 px-4 rounded-full text-lg font-bold bg-gray-500 text-white hover:bg-gray-600 transition-colors shadow-lg hidden mt-4"
+        >
+          Regenerate Foto
+        </button>
+      </div>
+
+      <!-- Main Content (Image Grid) -->
+      <div class="md:w-2/3 w-full bg-white rounded-2xl shadow-lg p-6 flex flex-col">
+        <div id="loading" class="hidden text-center text-lg font-semibold text-primary">
+          <p>Generating, please wait...</p>
+          <div
+            class="spinner mt-4 mx-auto w-12 h-12 border-4 border-gray-300 rounded-full border-t-primary animate-spin"
+          ></div>
+        </div>
+
+        <div
+          id="results"
+          class="grid grid-cols-3 gap-4 h-full overflow-y-auto scroll-container"
+        >
+          <!-- Image results will be injected here -->
+        </div>
+
+        <div
+          id="noImagesMessage"
+          class="flex flex-col items-center justify-center h-full text-gray-400 text-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-20 h-20 mb-4"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+            />
+          </svg>
+          <p>Hasil generate foto akan muncul di sini</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Button for Mobile -->
+    <div class="floating-button-container md:hidden">
+      <button
+        id="openSidebarBtn"
+        class="bg-primary text-white rounded-full p-4 shadow-xl hover:bg-secondary transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Zoom Modal -->
+    <div id="zoomModal" class="zoom-overlay hidden">
+      <div class="relative modal-content-wrapper p-4">
+        <img
+          id="modalImage"
+          class="rounded-lg shadow-xl max-h-full w-auto"
+          src=""
+          alt="Zoomed Image"
+        />
+        <div class="absolute top-4 right-4">
+          <button
+            id="downloadModalBtn"
+            class="bg-white text-gray-800 rounded-full p-2 shadow-lg hover:bg-gray-200 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.53-3.53a.75.75 0 1 1 1.06 1.06l-4.75 4.75a.75.75 0 0 1-1.06 0l-4.75-4.75a.75.75 0 1 1 1.06-1.06l3.53 3.53V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-2.25a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3v-2.25a.75.75 0 0 1 .75-.75Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+          <button
+            id="closeModalBtn"
+            class="bg-white text-gray-800 rounded-full p-2 ml-2 shadow-lg hover:bg-gray-200 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="index.tsx"></script>
+  </body>
+</html>
